@@ -82,8 +82,8 @@ for (i in 2011:2025) {
       var_name = "h_u2_5"
     ) |>
     ungroup() |>
-    # Group by id variable, year and month
-    group_by(code_muni, year, month) |>
+    # Group by id variable, year and week
+    group_by(code_muni, year, week) |>
     # Compute precipitation indicators
     summarise_windspeed(
       value_var = value,
