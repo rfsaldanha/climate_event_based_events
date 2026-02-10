@@ -30,7 +30,7 @@ tmin_data <- open_dataset(
 cli_alert_info("Computing normal...")
 tmin_normal <- tmin_data |>
   # Identify week
-  mutate(month = epiweek(date)) |>
+  mutate(week = epiweek(date)) |>
   # Group by id variable and week
   group_by(code_muni, week) |>
   # Compute normal

@@ -30,7 +30,7 @@ tmax_data <- open_dataset(
 cli_alert_info("Computing normal...")
 tmax_normal <- tmax_data |>
   # Identify week
-  mutate(month = epiweek(date)) |>
+  mutate(week = epiweek(date)) |>
   # Group by id variable and week
   group_by(code_muni, week) |>
   # Compute normal
