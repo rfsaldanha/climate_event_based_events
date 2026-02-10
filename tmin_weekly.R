@@ -82,8 +82,8 @@ for (i in 2011:2025) {
     # Ungroup
     ungroup()
 
-  tmax_indi <- bind_rows(tmax_indi, tmax_indi_tmp)
-  rm(tmax_indi_tmp)
+  tmin_indi <- bind_rows(tmin_indi, tmin_indi_tmp)
+  rm(tmin_indi_tmp)
 }
 
 
