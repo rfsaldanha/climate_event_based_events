@@ -40,7 +40,7 @@ rh_normal <- rh_data |>
   ungroup()
 
 cli_alert_info("Computing indicators...")
-rh_indi_tmp <- tibble()
+rh_indi <- tibble()
 for (i in 2011:2025) {
   cli_inform("{i}")
 

@@ -40,7 +40,7 @@ ws_normal <- ws_data |>
   ungroup()
 
 cli_alert_info("Computing indicators...")
-ws_indi_tmp <- tibble()
+ws_indi <- tibble()
 for (i in 2011:2025) {
   cli_inform("{i}")
 

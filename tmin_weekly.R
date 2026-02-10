@@ -44,7 +44,7 @@ tmin_normal <- tmin_data |>
   ungroup()
 
 cli_alert_info("Computing indicators...")
-tmin_indi_tmp <- tibble()
+tmin_indi <- tibble()
 for (i in 2011:2025) {
   cli_inform("{i}")
 
