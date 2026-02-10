@@ -92,8 +92,8 @@ for (i in 2011:2025) {
     # Ungroup
     ungroup()
 
-  ws_indi <- bind_rows(ws_indi, ws_indi_tmp)
-  rm(ws_indi_tmp)
+  rh_indi <- bind_rows(rh_indi, rh_indi_tmp)
+  rm(rh_indi_tmp)
 }
 
 
