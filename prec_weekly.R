@@ -5,6 +5,7 @@ library(readr)
 library(climindi) # http://rfsaldanha.github.io/climindi/
 library(zendown) # https://rfsaldanha.github.io/zendown/
 library(cli)
+library(tibble)
 
 cli_alert_info("Loading files...")
 prec_1950_2022 <- zen_file(10036212, "total_precipitation_sum.parquet")
@@ -42,41 +43,50 @@ prec_normal <- prec_data |>
   # Ungroup
   ungroup()
 
-cli_alert_info("Compyting indicators...")
-prec_indi <- prec_data |>
-  # Identify year
-  mutate(year = year(date)) |>
-  # Identify week
-  mutate(month = epiweek(date)) |>
-  # Filter year
-  filter(year >= 2011) |>
-  # Create wave variables
-  dplyr::group_by(code_muni) |>
-  dplyr::arrange(date) |>
-  add_wave(
-    normals_df = prec_normal,
-    threshold = 0,
-    threshold_cond = "gte",
-    size = 3,
-    var_name = "rs3"
-  ) |>
-  add_wave(
-    normals_df = prec_normal,
-    threshold = 0,
-    threshold_cond = "gte",
-    size = 5,
-    var_name = "rs5"
-  ) |>
-  dplyr::ungroup() |>
-  # Group by id variable, year and week
-  group_by(code_muni, year, week) |>
-  # Compute precipitation indicators
-  summarise_precipitation(
-    value_var = value,
-    normals_df = prec_normal
-  ) |>
-  # Ungroup
-  ungroup()
+cli_alert_info("Computing indicators...")
+prec_indi <- tibble()
+for (i in 2011:2025) {
+  cli_inform("{i}")
+
+  prec_indi_tmp <- prec_data |>
+    # Identify year
+    mutate(year = year(date)) |>
+    # Identify week
+    mutate(month = epiweek(date)) |>
+    # Filter year
+    filter(year == i) |>
+    # Create wave variables
+    dplyr::group_by(code_muni) |>
+    dplyr::arrange(date) |>
+    add_wave(
+      normals_df = prec_normal,
+      threshold = 0,
+      threshold_cond = "gte",
+      size = 3,
+      var_name = "rs3"
+    ) |>
+    add_wave(
+      normals_df = prec_normal,
+      threshold = 0,
+      threshold_cond = "gte",
+      size = 5,
+      var_name = "rs5"
+    ) |>
+    dplyr::ungroup() |>
+    # Group by id variable, year and week
+    group_by(code_muni, year, week) |>
+    # Compute precipitation indicators
+    summarise_precipitation(
+      value_var = value,
+      normals_df = prec_normal
+    ) |>
+    # Ungroup
+    ungroup()
+
+  prec_indi <- bind_rows(prec_indi, prec_indi_tmp)
+  rm(prec_indi_tmp)
+}
+
 
 cli_alert_info("Exporting...")
 write_parquet(x = prec_normal, sink = "prec_normal.parquet")
