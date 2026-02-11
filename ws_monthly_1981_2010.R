@@ -18,23 +18,23 @@ ws_data <- open_dataset(sources = c(ws_1950_2022, ws_2023, ws_2024, ws_2025)) |>
   # Average minimum temperature
   filter(name == "wind_speed_mean_mean") |>
   # Filter period
-  filter(date >= as.Date("1961-01-01")) |>
+  filter(date >= as.Date("1981-01-01")) |>
   select(-name) |>
   arrange(code_muni, date) |>
   collect()
 
 cli_alert_info("Computing normal...")
 ws_normal <- ws_data |>
-  # Identify week
-  mutate(week = epiweek(date)) |>
-  # Group by id variable and week
-  group_by(code_muni, week) |>
+  # Identify month
+  mutate(month = month(date)) |>
+  # Group by id variable and month
+  group_by(code_muni, month) |>
   # Compute normal
   summarise_normal(
     date_var = date,
     value_var = value,
-    year_start = 1961,
-    year_end = 1990
+    year_start = 1981,
+    year_end = 2010
   ) |>
   # Ungroup
   ungroup()
@@ -56,11 +56,11 @@ for (i in ufs) {
     # Identify year
     mutate(year = year(date)) |>
     # Filter year
-    filter(year >= 1991) |>
+    filter(year >= 2011) |>
     # Filter UF
     filter(substr(code_muni, 0, 2) == i) |>
-    # Identify week
-    mutate(week = epiweek(date)) |>
+    # Identify month
+    mutate(month = month(date)) |>
     # Create wave variables
     group_by(code_muni) |>
     add_wave(
@@ -92,8 +92,8 @@ for (i in ufs) {
       var_name = "h_u2_5"
     ) |>
     ungroup() |>
-    # Group by id variable, year and week
-    group_by(code_muni, year, week) |>
+    # Group by id variable, year and month
+    group_by(code_muni, year, month) |>
     # Compute precipitation indicators
     summarise_windspeed(
       value_var = value,
@@ -108,7 +108,7 @@ for (i in ufs) {
 
 
 cli_alert_info("Exporting...")
-write_parquet(x = ws_normal, sink = "ws_normal_weekly_n1961_1990.parquet")
-write_csv2(x = ws_normal, file = "ws_normal_weekly_n1961_1990.csv")
-write_parquet(x = ws_indi, sink = "ws_indi_weekly_n1961_1990.parquet")
-write_csv2(x = ws_indi, file = "ws_indi_weekly_n1961_1990.csv")
+write_parquet(x = ws_normal, sink = "ws_normal_monthly_n1981_2010.parquet")
+write_csv2(x = ws_normal, file = "ws_normal_monthly_n1981_2010.csv")
+write_parquet(x = ws_indi, sink = "ws_indi_monthly_n1981_2010.parquet")
+write_csv2(x = ws_indi, file = "ws_indi_monthly_n1981_2010.csv")

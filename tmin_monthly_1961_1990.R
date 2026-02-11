@@ -20,7 +20,7 @@ tmin_data <- open_dataset(
   # Average minimum temperature
   filter(name == "2m_temperature_min_mean") |>
   # Filter period
-  filter(date >= as.Date("1981-01-01")) |>
+  filter(date >= as.Date("1961-01-01")) |>
   # Unit conversion
   mutate(value = round(value - 273.15, digits = 2)) |>
   select(-name) |>
@@ -29,16 +29,16 @@ tmin_data <- open_dataset(
 
 cli_alert_info("Computing normal...")
 tmin_normal <- tmin_data |>
-  # Identify week
-  mutate(week = epiweek(date)) |>
-  # Group by id variable and week
-  group_by(code_muni, week) |>
+  # Identify month
+  mutate(month = month(date)) |>
+  # Group by id variable and month
+  group_by(code_muni, month) |>
   # Compute normal
   summarise_normal(
     date_var = date,
     value_var = value,
-    year_start = 1981,
-    year_end = 2010
+    year_start = 1961,
+    year_end = 1990
   ) |>
   # Ungroup
   ungroup()
@@ -60,11 +60,11 @@ for (i in ufs) {
     # Identify year
     mutate(year = year(date)) |>
     # Filter year
-    filter(year >= 2011) |>
+    filter(year >= 1991) |>
     # Filter UF
     filter(substr(code_muni, 0, 2) == i) |>
-    # Identify week
-    mutate(week = epiweek(date)) |>
+    # Identify month
+    mutate(month = month(date)) |>
     # Create wave variables
     group_by(code_muni) |>
     add_wave(
@@ -82,8 +82,8 @@ for (i in ufs) {
       var_name = "cw5"
     ) |>
     ungroup() |>
-    # Group by id variable, year and week
-    group_by(code_muni, year, week) |>
+    # Group by id variable, year and month
+    group_by(code_muni, year, month) |>
     # Compute precipitation indicators
     summarise_temp_min(
       value_var = value,
@@ -98,7 +98,7 @@ for (i in ufs) {
 
 
 cli_alert_info("Exporting...")
-write_parquet(x = tmin_normal, sink = "tmin_weekly_normal_n1981_2010.parquet")
-write_csv2(x = tmin_normal, file = "tmin_weekly_normal_n981_2010.csv")
-write_parquet(x = tmin_indi, sink = "tmin_weekly_indi_n1981_2010.parquet")
-write_csv2(x = tmin_indi, file = "tmin_weekly_indi_n1981_2010.csv")
+write_parquet(x = tmin_normal, sink = "tmin_monthly_normal_n1961_1990.parquet")
+write_csv2(x = tmin_normal, file = "tmin_monthly_normal_n1961_1990.csv")
+write_parquet(x = tmin_indi, sink = "tmin_indi_monthly_n1961_1990.parquet")
+write_csv2(x = tmin_indi, file = "tmin_indi_monthly_n1961_1990.csv")

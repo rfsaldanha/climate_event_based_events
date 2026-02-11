@@ -29,10 +29,10 @@ tmin_data <- open_dataset(
 
 cli_alert_info("Computing normal...")
 tmin_normal <- tmin_data |>
-  # Identify week
-  mutate(week = epiweek(date)) |>
-  # Group by id variable and week
-  group_by(code_muni, week) |>
+  # Identify month
+  mutate(month = month(date)) |>
+  # Group by id variable and month
+  group_by(code_muni, month) |>
   # Compute normal
   summarise_normal(
     date_var = date,
@@ -63,8 +63,8 @@ for (i in ufs) {
     filter(year >= 2011) |>
     # Filter UF
     filter(substr(code_muni, 0, 2) == i) |>
-    # Identify week
-    mutate(week = epiweek(date)) |>
+    # Identify month
+    mutate(month = month(date)) |>
     # Create wave variables
     group_by(code_muni) |>
     add_wave(
@@ -82,8 +82,8 @@ for (i in ufs) {
       var_name = "cw5"
     ) |>
     ungroup() |>
-    # Group by id variable, year and week
-    group_by(code_muni, year, week) |>
+    # Group by id variable, year and month
+    group_by(code_muni, year, month) |>
     # Compute precipitation indicators
     summarise_temp_min(
       value_var = value,
@@ -98,7 +98,7 @@ for (i in ufs) {
 
 
 cli_alert_info("Exporting...")
-write_parquet(x = tmin_normal, sink = "tmin_weekly_normal_n1981_2010.parquet")
-write_csv2(x = tmin_normal, file = "tmin_weekly_normal_n981_2010.csv")
-write_parquet(x = tmin_indi, sink = "tmin_weekly_indi_n1981_2010.parquet")
-write_csv2(x = tmin_indi, file = "tmin_weekly_indi_n1981_2010.csv")
+write_parquet(x = tmin_normal, sink = "tmin_monthly_normal_n1981_2010.parquet")
+write_csv2(x = tmin_normal, file = "tmin_monthly_normal_n981_2010.csv")
+write_parquet(x = tmin_indi, sink = "tmin_monthly_indi_n1981_2010.parquet")
+write_csv2(x = tmin_indi, file = "tmin_monthly_indi_n1981_2010.csv")
