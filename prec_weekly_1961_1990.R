@@ -99,7 +99,7 @@ for (i in ufs) {
 
 
 cli_alert_info("Exporting...")
-write_parquet(x = prec_normal, sink = "prec_normal_weekly_1961_1990.parquet")
-write_csv2(x = prec_normal, file = "prec_normal_weekly_1961_1990.csv")
-write_parquet(x = prec_indi, sink = "prec_indi_weekly_1961_1990.parquet")
-write_csv2(x = prec_indi, file = "prec_indi_weekly_1961_1990.csv")
+write_parquet(x = prec_normal, sink = "prec_weekly_normal_1961_1990.parquet")
+write_csv2(x = prec_normal, file = "prec_weekly_normal_1961_1990.csv")
+write_parquet(x = prec_indi, sink = "prec_weekly_indi_1961_1990.parquet")
+write_csv2(x = prec_indi, file = "prec_weekly_indi_1961_1990.csv")

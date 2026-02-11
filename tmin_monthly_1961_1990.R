@@ -100,5 +100,5 @@ for (i in ufs) {
 cli_alert_info("Exporting...")
 write_parquet(x = tmin_normal, sink = "tmin_monthly_normal_n1961_1990.parquet")
 write_csv2(x = tmin_normal, file = "tmin_monthly_normal_n1961_1990.csv")
-write_parquet(x = tmin_indi, sink = "tmin_indi_monthly_n1961_1990.parquet")
-write_csv2(x = tmin_indi, file = "tmin_indi_monthly_n1961_1990.csv")
+write_parquet(x = tmin_indi, sink = "tmin_monthly_indi_n1961_1990.parquet")
+write_csv2(x = tmin_indi, file = "tmin_monthly_indi_n1961_1990.csv")
