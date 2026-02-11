@@ -2,8 +2,8 @@ library(dplyr)
 library(lubridate)
 library(arrow)
 library(readr)
-library(climindi) # http://rfsaldanha.github.io/climindi/
-library(zendown) # https://rfsaldanha.github.io/zendown/
+library(climindi)
+library(zendown)
 library(cli)
 library(tibble)
 
