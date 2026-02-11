@@ -1,0 +1,104 @@
+library(dplyr)
+library(lubridate)
+library(arrow)
+library(readr)
+library(climindi)
+library(zendown)
+library(cli)
+library(tibble)
+
+cli_alert_info("Loading files...")
+tmin_1950_2022 <- zen_file(10036212, "2m_temperature_min.parquet")
+tmin_2023 <- zen_file(10947952, "2m_temperature_min.parquet")
+tmin_2024 <- zen_file(15748125, "2m_temperature_min.parquet")
+tmin_2025 <- zen_file(18257037, "2m_temperature_min.parquet")
+
+cli_alert_info("Processing files...")
+tmin_data <- open_dataset(
+  sources = c(tmin_1950_2022, tmin_2023, tmin_2024, tmin_2025)
+) |>
+  # Average minimum temperature
+  filter(name == "2m_temperature_min_mean") |>
+  # Filter period
+  filter(date >= as.Date("1961-01-01")) |>
+  # Unit conversion
+  mutate(value = round(value - 273.15, digits = 2)) |>
+  select(-name) |>
+  arrange(code_muni, date) |>
+  collect()
+
+cli_alert_info("Computing normal...")
+tmin_normal <- tmin_data |>
+  # Identify week
+  mutate(week = epiweek(date)) |>
+  # Group by id variable and week
+  group_by(code_muni, week) |>
+  # Compute normal
+  summarise_normal(
+    date_var = date,
+    value_var = value,
+    year_start = 1961,
+    year_end = 1990
+  ) |>
+  # Ungroup
+  ungroup()
+
+cli_alert_info("Computing indicators...")
+
+ufs <- tmin_data |>
+  mutate(uf = substr(code_muni, 0, 2)) |>
+  select(uf) |>
+  distinct(uf) |>
+  pull(uf)
+
+tmin_indi <- tibble()
+
+for (i in ufs) {
+  cli_inform("{i}")
+
+  tmin_indi_tmp <- tmin_data |>
+    # Identify year
+    mutate(year = year(date)) |>
+    # Filter year
+    filter(year >= 1991) |>
+    # Filter UF
+    filter(substr(code_muni, 0, 2) == i) |>
+    # Identify week
+    mutate(week = epiweek(date)) |>
+    # Create wave variables
+    group_by(code_muni) |>
+    add_wave(
+      normals_df = tmin_normal,
+      threshold = -5,
+      threshold_cond = "lte",
+      size = 3,
+      var_name = "cw3"
+    ) |>
+    add_wave(
+      normals_df = tmin_normal,
+      threshold = -5,
+      threshold_cond = "lte",
+      size = 5,
+      var_name = "cw5"
+    ) |>
+    ungroup() |>
+    # Group by id variable, year and week
+    group_by(code_muni, year, week) |>
+    # Compute precipitation indicators
+    summarise_temp_min(
+      value_var = value,
+      normals_df = tmin_normal
+    ) |>
+    # Ungroup
+    ungroup()
+
+  tmin_indi <- bind_rows(tmin_indi, tmin_indi_tmp)
+  rm(tmin_indi_tmp)
+}
+
+
+cli_alert_info("Exporting...")
+write_parquet(x = tmin_normal, sink = "tmin_normal_n1961_1990.parquet")
+write_csv2(x = tmin_normal, file = "tmin_normal_n1961_1990.csv")
+write_parquet(x = tmin_indi, sink = "tmin_indi_n1961_1990.parquet")
+write_csv2(x = tmin_indi, file = "tmin_indi_n1961_1990.csv")
