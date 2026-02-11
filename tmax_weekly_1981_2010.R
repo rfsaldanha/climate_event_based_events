@@ -45,7 +45,7 @@ tmax_normal <- tmax_data |>
 
 cli_alert_info("Computing indicators...")
 
-ufs <- prec_data |>
+ufs <- tmax_data |>
   mutate(uf = substr(code_muni, 0, 2)) |>
   select(uf) |>
   distinct(uf) |>
