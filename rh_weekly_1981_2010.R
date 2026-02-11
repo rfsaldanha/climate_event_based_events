@@ -2,8 +2,8 @@ library(dplyr)
 library(lubridate)
 library(arrow)
 library(readr)
-library(climindi) # http://rfsaldanha.github.io/climindi/
-library(zendown) # https://rfsaldanha.github.io/zendown/
+library(climindi)
+library(zendown)
 library(cli)
 library(tibble)
 
@@ -40,17 +40,27 @@ rh_normal <- rh_data |>
   ungroup()
 
 cli_alert_info("Computing indicators...")
+
+ufs <- prec_data |>
+  mutate(uf = substr(code_muni, 0, 2)) |>
+  select(uf) |>
+  distinct(uf) |>
+  pull(uf)
+
 rh_indi <- tibble()
-for (i in 2011:2025) {
+
+for (i in ufs) {
   cli_inform("{i}")
 
   rh_indi_tmp <- rh_data |>
     # Identify year
     mutate(year = year(date)) |>
-    # Identify week
-    mutate(month = epiweek(date)) |>
     # Filter year
-    filter(year == i) |>
+    filter(year >= 2011) |>
+    # Filter UF
+    filter(substr(code_muni, 0, 2) == i) |>
+    # Identify week
+    mutate(week = epiweek(date)) |>
     # Create wave variables
     group_by(code_muni) |>
     add_wave(
@@ -98,7 +108,7 @@ for (i in 2011:2025) {
 
 
 cli_alert_info("Exporting...")
-write_parquet(x = rh_normal, sink = "rh_normal.parquet")
-write_csv2(x = rh_normal, file = "rh_normal.csv")
-write_parquet(x = rh_indi, sink = "rh_indi.parquet")
-write_csv2(x = rh_indi, file = "rh_indi.csv")
+write_parquet(x = rh_normal, sink = "rh_normal_weekly_1981_2010.parquet")
+write_csv2(x = rh_normal, file = "rh_normal_weekly_1981_2010.csv")
+write_parquet(x = rh_indi, sink = "rh_indi_weekly_1981_2010.parquet")
+write_csv2(x = rh_indi, file = "rh_indi_weekly_1981_2010.csv")
