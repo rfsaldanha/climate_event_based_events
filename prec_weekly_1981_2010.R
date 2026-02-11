@@ -44,17 +44,27 @@ prec_normal <- prec_data |>
   ungroup()
 
 cli_alert_info("Computing indicators...")
+
+ufs <- prec_data |>
+  mutate(uf = substr(code_muni, 0, 2)) |>
+  select(uf) |>
+  distinct(uf) |>
+  pull(uf)
+
 prec_indi <- tibble()
-for (i in 2011:2025) {
+
+for (i in ufs) {
   cli_inform("{i}")
 
   prec_indi_tmp <- prec_data |>
     # Identify year
     mutate(year = year(date)) |>
-    # Identify week
-    mutate(month = epiweek(date)) |>
     # Filter year
-    filter(year == i) |>
+    filter(year >= 2011) |>
+    # Filter UF
+    filter(substr(code_muni, 0, 2) == i) |>
+    # Identify week
+    mutate(week = epiweek(date)) |>
     # Create wave variables
     dplyr::group_by(code_muni) |>
     dplyr::arrange(date) |>
@@ -89,7 +99,7 @@ for (i in 2011:2025) {
 
 
 cli_alert_info("Exporting...")
-write_parquet(x = prec_normal, sink = "prec_normal.parquet")
-write_csv2(x = prec_normal, file = "prec_normal.csv")
-write_parquet(x = prec_indi, sink = "prec_indi.parquet")
-write_csv2(x = prec_indi, file = "prec_indi.csv")
+write_parquet(x = prec_normal, sink = "prec_normal_weekly_1981_2010.parquet")
+write_csv2(x = prec_normal, file = "prec_normal_weekly_1981_2010.csv")
+write_parquet(x = prec_indi, sink = "prec_indi_weekly_1981_2010.parquet")
+write_csv2(x = prec_indi, file = "prec_indi_weekly_1981_2010.csv")
