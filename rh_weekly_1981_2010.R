@@ -41,7 +41,7 @@ rh_normal <- rh_data |>
 
 cli_alert_info("Computing indicators...")
 
-ufs <- prec_data |>
+ufs <- rh_data |>
   mutate(uf = substr(code_muni, 0, 2)) |>
   select(uf) |>
   distinct(uf) |>
