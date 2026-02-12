@@ -1,4 +1,5 @@
 # Packages
+library(tidyr)
 library(dplyr)
 library(lubridate)
 library(arrow)
@@ -7,7 +8,7 @@ library(readr)
 library(zip)
 
 # Setup
-start_year <- 2010
+start_year <- 2000
 end_year <- 2025
 
 # Data sources
@@ -32,6 +33,7 @@ prec_b <- open_dataset(sources = prec_n1981_2010) |>
   collect()
 
 prec <- bind_rows(prec_a, prec_b) |>
+  drop_na() |>
   mutate(
     across(
       .cols = c(year, week, count, rs3:d_25),
@@ -63,6 +65,7 @@ tmax_b <- open_dataset(sources = tmax_n1981_2010) |>
   collect()
 
 tmax <- bind_rows(tmax_a, tmax_b) |>
+  drop_na() |>
   mutate(
     across(
       .cols = c(year, week, count, hot_days:t_40),
@@ -94,6 +97,7 @@ tmin_b <- open_dataset(sources = tmin_n1981_2010) |>
   collect()
 
 tmin <- bind_rows(tmin_a, tmin_b) |>
+  drop_na() |>
   mutate(
     across(
       .cols = c(year, week, count, cw3:t_20),
@@ -125,6 +129,7 @@ ws_b <- open_dataset(sources = ws_n1981_2010) |>
   collect()
 
 ws <- bind_rows(ws_a, ws_b) |>
+  drop_na() |>
   mutate(
     across(
       .cols = c(year, week, count, l_u2_3:b12),
@@ -157,6 +162,7 @@ rh_b <- open_dataset(sources = rh_n1981_2010) |>
   collect()
 
 rh <- bind_rows(rh_a, rh_b) |>
+  drop_na() |>
   mutate(
     across(
       .cols = c(year, week, count, ds3:h_11),
