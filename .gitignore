@@ -52,3 +52,4 @@ rsconnect/
 *.csv
 *.parquet
 *.zip
+.DS_Store
